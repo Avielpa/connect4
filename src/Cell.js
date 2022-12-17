@@ -1,6 +1,6 @@
 function Cell(props) {
     return(
-        <td style = {{backgroundColor: "red"}} onClick={() =>
+        <td style = {{backgroundColor: "white"}} onClick={() =>
             props.cellClicked(props.row, props.cell)}>
             {props.value}
         </td>
