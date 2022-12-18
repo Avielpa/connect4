@@ -1,6 +1,5 @@
 import './App.css';
 
-
 function Cell(props){
     let bg = 'white';
     if (props.value === 1) {
@@ -9,11 +8,12 @@ function Cell(props){
         bg = 'yellow';
     }
     return(
-        <td style = {{backgroundColor: bg}} onClick={() =>
+    <td
+         style = {{backgroundColor: bg}} onClick={() =>
             props.cellClicked(props.cell)}>
 
-        </td>
+    </td>
     )
 }
 
-export default Cell;
+export default Cell;
