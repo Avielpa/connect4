@@ -1,61 +1,94 @@
 import './App.css';
 import React from "react";
-import Cell, {value} from "./Cell";
-import cell from "./Cell";
-import {keyboard} from "@testing-library/user-event/dist/keyboard";
+import Cell from "./Cell";
 
 
 
 class App extends React.Component {
     state = {
-        player1: 1,
-        player2: 2,
-        currentPlayer: 1,
+        player1:1,
+        player2:2,
+        currentPlayer: null,
+        board: [],
         gameOver: false,
-        board:
-            [
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '']
-            ]
-
+        write: '',
+        l_color: ''
     }
 
+    initBoard() {
+        let board = [];
+        for (let r = 0; r < 6; r++) {
+            let row = [];
+            for (let c = 0; c < 7; c++) { row.push(null) }
+            board.push(row);
+        }
 
-    cellClicked = (cell) => {
+        this.setState({
+            board,
+            currentPlayer: this.state.player1,
+            write: 'Red player turn',
+            gameOver: false,
+            text_color: 'red'
+        });
+    }
+
+    cellClicked = (row,cell) => {
         let currentColor = this.state.board;
         if (!this.state.gameOver) {
             for (let i = 5; i >= 0; i--) {
-                if (currentColor[i][cell] === '') {
+                if (currentColor[i][cell] === null) {
                     currentColor[i][cell] = this.state.currentPlayer;
                     this.setState({
                         board: currentColor,
                         currentPlayer: this.switchPlayer(),
                     })
+                    this.checkAll(row, cell);
                     break
                 }
             }
         }
     }
 
-    switchPlayer() {
-            this.checkAll()
-            return (this.state.currentPlayer === this.state.player1) ? this.state.player2 : this.state.player1;
-
-
-    }
-
 
     checkAll () {
         if (this.checkDiagonalRight() || this.checkHorizontal()
-        || this.checkVertical() || this.checkDiagonalLeft()){
-            this.state.gameOver = true
-            alert("Fuck")
+            || this.checkVertical() || this.checkDiagonalLeft()){
+            this.setState({
+                gameOver: true
+            })
+            if(this.state.currentPlayer === 1){
+                this.setState({
+                    write: "Red player wins!",
+                    text_color: 'red'
+                })
+            }
+            else {
+                this.setState({
+                    write: "Yellow player wins!",
+                    text_color: 'yellow'
+                })
+            }
+        }else {
+            let count = 0
+            for (let i = 0; i < 7; i++) {
+                if(this.state.board[0][i] === null){
+                    break;
+                }
+                else {
+                    count = count + 1;
+                }
+            }
+            if(count===7) {
+                this.setState({
+                    gameOver: true,
+                    write: "it's draw",
+                    text_color: 'black'
+                })
+            }
         }
     }
+
+
     checkHorizontal() {
         let board = this.state.board
         let win = false
@@ -73,6 +106,7 @@ class App extends React.Component {
         }
     }
 
+
     checkVertical() {
         let board = this.state.board
         let win = false;
@@ -86,10 +120,10 @@ class App extends React.Component {
                         return win
                     }
                 }
-
             }
         }
     }
+
 
     checkDiagonalRight(){
         let board = this.state.board
@@ -104,7 +138,6 @@ class App extends React.Component {
                         return win
                     }
                 }
-
             }
         }
     }
@@ -121,43 +154,69 @@ class App extends React.Component {
                         win = true
                         return win
                     }
+
                 }
             }
         }
     }
 
 
+    switchPlayer () {
 
-    
+        if(this.state.currentPlayer === this.state.player1) {
+            this.setState({
+                write: 'Yellow player turn',
+                text_color: 'yellow'
+            })
+            return(this.state.player2)
+        } else {
+            this.setState({
+                currentPlayer: this.state.player1,
+                write: 'Red player turn',
+                text_color: 'red'
+            })
+            return(this.state.player1)
+        }
+    }
 
+
+    componentWillMount() {
+        this.initBoard();
+    }
 
 
     render() {
         return (
             <div className={"App"}>
-                <label> </label>
-                <table>
-                    {
-                        this.state.board.map((row, rowIndex) => {
-                            return (
-                                <tr>
-                                    {
-                                        row.map((cell, cellIndex) => {
-                                            return (
-                                                <Cell
-                                                    value={this.state.board[rowIndex][cellIndex]}
-                                                    cellClicked={this.cellClicked}
-                                                    row={rowIndex}
-                                                    cell={cellIndex}
-                                                />
-                                            )
-                                        })
-                                    }
-                                </tr>
-                            )
-                        })
-                    }
-                </table>
+                <h1>Connect4</h1>
+                <hr/>
+                <h2><div className={"write"} style={{color: this.state.text_color}}>{this.state.write}</div></h2>
+                <div className={"tb"}>
+                    <table>
+                        {
+                            this.state.board.map((row, rowIndex) => {
+                                return(
+                                    <tr>
+                                        {
+                                            row.map((cell, cellIndex) =>{
+                                                return(
+                                                    <Cell
+                                                        value = {this.state.board[rowIndex][cellIndex]}
+                                                        cellClicked = {this.cellClicked}
+                                                        row = {rowIndex}
+                                                        cell = {cellIndex}
+                                                    />
+                                                )
+                                            })
+                                        }
+                                    </tr>
+                                )
+                            })
+                        }
+                    </table>
+                </div>
+                <br/><hr/><br/>
+                <div className="button" onClick={() => {this.initBoard()}}>New Game</div>
             </div>
         );
     }
@@ -165,4 +224,4 @@ class App extends React.Component {
 }
 
 
-export default App;
+export default App
